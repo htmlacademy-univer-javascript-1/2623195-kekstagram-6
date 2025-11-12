@@ -64,8 +64,6 @@ const addComments = (count) => {
   return comments;
 };
 
-const photos = [];
-
 const addPhoto = (index) => ({
   id: index + 1,
   url: `photos/${index + 1}.jpg`,
@@ -73,12 +71,12 @@ const addPhoto = (index) => ({
   likes: getRandomInteger(Likes.MIN, Likes.MAX),
   comments: addComments(getRandomInteger(0, MAX_COMMENT))
 });
-const addPhotos = () => {
+const generatePhotos = () => {
+  const photos =[];
   for (let i = 0; i < COUNT_PHOTO; i++) {
     photos.push(addPhoto(i));
   }
+  return photos;
 };
 
-addPhotos();
-
-export {photos};
+export { generatePhotos };
