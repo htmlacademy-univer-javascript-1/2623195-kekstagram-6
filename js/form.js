@@ -1,4 +1,6 @@
 import { isEscapeKey, toggleClass } from './util.js';
+import { initScale, resetScale } from './scale.js';
+import { initEffects, resetEffects } from './effects.js';
 
 const MAX_SYMBOLS = 20;
 const MAX_HASHTAGS = 5;
@@ -100,6 +102,8 @@ const resetFormToDefault = () => {
   effectNoneRadio.checked = true;
   hashtagInput.value = '';
   commentInput.value = '';
+  resetScale();
+  resetEffects();
 
   if (pristine) {
     pristine.reset();
@@ -235,6 +239,9 @@ const initUploadForm = () => {
 
   updateSubmitButtonState();
   uploadForm.addEventListener('submit', onFormSubmit);
+  initScale();
+  initEffects();
 };
 
 export { initUploadForm, closeUploadForm };
+
