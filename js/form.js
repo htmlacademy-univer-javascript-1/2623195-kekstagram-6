@@ -1,6 +1,8 @@
 import { isEscapeKey, toggleClass } from './util.js';
 import { initScale, resetScale } from './scale.js';
 import { initEffects, resetEffects } from './effects.js';
+import { uploadData } from './fetch.js';
+import { showSuccessMessage, showErrorMessage } from './messages.js';
 
 const MAX_SYMBOLS = 20;
 const MAX_HASHTAGS = 5;
@@ -20,6 +22,10 @@ const effectNoneRadio = uploadForm.querySelector('#effect-none');
 let isFormOpen = false;
 let pristine;
 
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const imagePreview = document.querySelector('.img-upload__preview img');
+const effectsPreviews = document.querySelectorAll('.effects__preview');
+
 const validateHashtags = (value) => {
   const inputText = value.trim();
 
@@ -27,7 +33,7 @@ const validateHashtags = (value) => {
     return true;
   }
 
-  const hashtags = inputText.toLowerCase().split(/\s+/).filter(tag => tag);
+  const hashtags = inputText.toLowerCase().split(/\s+/).filter((tag) => tag);
 
   const rules = [
     {
@@ -59,13 +65,12 @@ const validateHashtags = (value) => {
   return rules.every((rule) => !rule.check);
 };
 
-const validateComment = (value) => {
-  return value.length <= MAX_COMMENT_LENGTH;
-};
+const validateComment = (value) => value.length <= MAX_COMMENT_LENGTH;
 
-const updateSubmitButtonState = () => {
+const updateSubmitButtonState = (isDisabled = false) => {
+  uploadSubmit.disabled = isDisabled;
+
   if (!pristine) {
-    uploadSubmit.disabled = false;
     return;
   }
 
@@ -73,54 +78,16 @@ const updateSubmitButtonState = () => {
   const isCommentValid = pristine.validate(commentInput);
 
   const isValid = isHashtagsValid && isCommentValid;
-  uploadSubmit.disabled = !isValid;
-};
 
-const toggleUploadModal = () => {
-  toggleClass(uploadOverlay, 'hidden');
-  toggleClass(document.body, 'modal-open');
-  isFormOpen = !isFormOpen;
-
-  if (isFormOpen) {
-    document.addEventListener('keydown', onUploadEscKeyDown);
-  } else {
-    document.removeEventListener('keydown', onUploadEscKeyDown);
+  if (!isDisabled) {
+    uploadSubmit.disabled = !isValid;
   }
-};
-
-const openUploadForm = () => {
-  if (!isFormOpen) {
-    toggleUploadModal();
-  }
-};
-
-const resetFormToDefault = () => {
-  uploadFileInput.value = '';
-  uploadForm.reset();
-  scaleInput.value = 100;
-  effectLevelInput.value = 100;
-  effectNoneRadio.checked = true;
-  hashtagInput.value = '';
-  commentInput.value = '';
-  resetScale();
-  resetEffects();
-
-  if (pristine) {
-    pristine.reset();
-  }
-  updateSubmitButtonState();
 };
 
 const closeUploadForm = () => {
   if (isFormOpen) {
     resetFormToDefault();
     toggleUploadModal();
-  }
-};
-
-const onFieldKeydown = (evt) => {
-  if (isEscapeKey(evt)) {
-    evt.stopPropagation();
   }
 };
 
@@ -137,14 +104,83 @@ const onUploadEscKeyDown = (evt) => {
   }
 };
 
+function toggleUploadModal() {
+  toggleClass(uploadOverlay, 'hidden');
+  toggleClass(document.body, 'modal-open');
+  isFormOpen = !isFormOpen;
+
+  if (isFormOpen) {
+    document.addEventListener('keydown', onUploadEscKeyDown);
+  } else {
+    document.removeEventListener('keydown', onUploadEscKeyDown);
+  }
+}
+
+const openUploadForm = () => {
+  if (!isFormOpen) {
+    toggleUploadModal();
+  }
+};
+
+function resetFormToDefault() {
+  uploadFileInput.value = '';
+  uploadForm.reset();
+  scaleInput.value = 100;
+  effectLevelInput.value = 100;
+  effectNoneRadio.checked = true;
+  hashtagInput.value = '';
+  commentInput.value = '';
+
+  imagePreview.src = '';
+  imagePreview.style.filter = 'none';
+  effectsPreviews.forEach((preview) => {
+    preview.style.backgroundImage = '';
+  });
+
+  resetScale();
+  resetEffects();
+
+  if (pristine) {
+    pristine.reset();
+  }
+  updateSubmitButtonState(false);
+}
+
+const onFieldKeydown = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.stopPropagation();
+  }
+};
+
 const onCloseUploadClick = () => {
   closeUploadForm();
+};
+
+const loadImage = (file) => {
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+
+  if (!matches) {
+    return false;
+  }
+
+  const reader = new FileReader();
+
+  reader.addEventListener('load', () => {
+    imagePreview.src = reader.result;
+    effectsPreviews.forEach((preview) => {
+      preview.style.backgroundImage = `url(${reader.result})`;
+    });
+  });
+
+  reader.readAsDataURL(file);
+  return true;
 };
 
 const onFileInputChange = () => {
   const file = uploadFileInput.files[0];
 
-  if (file) {
+  if (file && loadImage(file)) {
     openUploadForm();
   }
 };
@@ -163,6 +199,17 @@ const onCommentInput = () => {
   }
 };
 
+const onUploadSuccess = () => {
+  showSuccessMessage();
+  closeUploadForm();
+  updateSubmitButtonState(false);
+};
+
+const onUploadError = () => {
+  showErrorMessage();
+  updateSubmitButtonState(false);
+};
+
 const onFormSubmit = (evt) => {
   evt.preventDefault();
 
@@ -171,6 +218,21 @@ const onFormSubmit = (evt) => {
   if (!isValid) {
     return;
   }
+
+  if (!uploadFileInput.files || uploadFileInput.files.length === 0) {
+    return;
+  }
+
+  updateSubmitButtonState(true);
+
+  const formData = new FormData(evt.target);
+
+  uploadData(
+    onUploadSuccess,
+    onUploadError,
+    'POST',
+    formData
+  );
 };
 
 const initUploadForm = () => {
@@ -188,7 +250,7 @@ const initUploadForm = () => {
       hashtagInput,
       validateHashtags,
       (value) => {
-        const hashtags = value.trim().toLowerCase().split(/\s+/).filter(tag => tag);
+        const hashtags = value.trim().toLowerCase().split(/\s+/).filter((tag) => tag);
 
         if (!value.trim()) {
           return '';
@@ -237,11 +299,11 @@ const initUploadForm = () => {
   hashtagInput.addEventListener('input', onHashtagInput);
   commentInput.addEventListener('input', onCommentInput);
 
-  updateSubmitButtonState();
   uploadForm.addEventListener('submit', onFormSubmit);
+
+  updateSubmitButtonState(false);
   initScale();
   initEffects();
 };
 
 export { initUploadForm, closeUploadForm };
-

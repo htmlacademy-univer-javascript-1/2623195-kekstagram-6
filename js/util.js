@@ -1,8 +1,3 @@
-const getRandomInteger = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-const getRandomArrayElement = (array) => array[getRandomInteger(0, array.length - 1)];
-
-
 const Keys = {
   ESCAPE: 'Escape',
   ESC: 'Esc',
@@ -29,4 +24,4 @@ const numDecline = (num, nominative, genitiveSingular,genitivePlural) => {
   return genitivePlural;
 };
 
-export { getRandomInteger, getRandomArrayElement, isEscapeKey, toggleClass, numDecline };
+export { isEscapeKey, toggleClass, numDecline };
