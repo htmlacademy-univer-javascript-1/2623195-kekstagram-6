@@ -4,6 +4,7 @@ import { initEffects, resetEffects } from './effects.js';
 import { uploadData } from './fetch.js';
 import { showSuccessMessage, showErrorMessage } from './messages.js';
 
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const MAX_SYMBOLS = 20;
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
@@ -22,7 +23,6 @@ const effectNoneRadio = uploadForm.querySelector('#effect-none');
 let isFormOpen = false;
 let pristine;
 
-const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const imagePreview = document.querySelector('.img-upload__preview img');
 const effectsPreviews = document.querySelectorAll('.effects__preview');
 
@@ -307,3 +307,4 @@ const initUploadForm = () => {
 };
 
 export { initUploadForm, closeUploadForm };
+//

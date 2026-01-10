@@ -5,11 +5,15 @@ const SCALE_DEFAULT = 100;
 
 let scaleInput, scaleSmaller, scaleBigger, imagePreview;
 
+const form = document.querySelector('.img-upload__form');
+
 const getScaleElements = () => {
-  scaleInput = document.querySelector('.scale__control--value');
-  scaleSmaller = document.querySelector('.scale__control--smaller');
-  scaleBigger = document.querySelector('.scale__control--bigger');
-  imagePreview = document.querySelector('.img-upload__preview img');
+  if (form) {
+    scaleInput = form.querySelector('.scale__control--value');
+    scaleSmaller = form.querySelector('.scale__control--smaller');
+    scaleBigger = form.querySelector('.scale__control--bigger');
+    imagePreview = form.querySelector('.img-upload__preview img');
+  }
 };
 
 const updateImageScale = () => {

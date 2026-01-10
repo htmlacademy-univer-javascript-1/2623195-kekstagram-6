@@ -1,12 +1,3 @@
-
-const noUiSlider = window.noUiSlider;
-
-const effectLevelValue = document.querySelector('.effect-level__value');
-const effectLevelSlider = document.querySelector('.effect-level__slider');
-const effectLevelContainer = document.querySelector('.img-upload__effect-level');
-const effectsList = document.querySelector('.effects__list');
-const imagePreview = document.querySelector('.img-upload__preview img');
-
 const EFFECTS_CONFIG = {
   'effect-none': {
     name: 'none',
@@ -63,6 +54,15 @@ const EFFECTS_CONFIG = {
     start: 3,
   },
 };
+
+const noUiSlider = window.noUiSlider;
+
+const effectLevelValue = document.querySelector('.effect-level__value');
+const effectLevelSlider = document.querySelector('.effect-level__slider');
+const effectLevelContainer = document.querySelector('.img-upload__effect-level');
+const effectsList = document.querySelector('.effects__list');
+const imagePreview = document.querySelector('.img-upload__preview img');
+
 
 let currentEffect = 'effect-none';
 let slider = null;
