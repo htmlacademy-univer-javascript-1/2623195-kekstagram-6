@@ -35,11 +35,15 @@ const showMessage = (template) => {
   const closeButton = currentMessage.querySelector('.success__button') ||
                       currentMessage.querySelector('.error__button');
 
-  closeButton.addEventListener('click', closeMessage);
+  const onCloseButtonClick = () => {
+    closeMessage();
+  };
+
+  closeButton.addEventListener('click', onCloseButtonClick);
   document.addEventListener('keydown', onMessageEscKeydown);
   document.addEventListener('click', onMessageClick);
 
-  document.body.appendChild(currentMessage);
+  document.body.insertAdjacentElement('beforeend', currentMessage);
 };
 
 const showSuccessMessage = () => {

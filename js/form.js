@@ -7,6 +7,7 @@ import { showSuccessMessage, showErrorMessage } from './messages.js';
 const MAX_SYMBOLS = 20;
 const MAX_HASHTAGS = 5;
 const MAX_COMMENT_LENGTH = 140;
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadFileInput = uploadForm.querySelector('#upload-file');
@@ -22,7 +23,6 @@ const effectNoneRadio = uploadForm.querySelector('#effect-none');
 let isFormOpen = false;
 let pristine;
 
-const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const imagePreview = document.querySelector('.img-upload__preview img');
 const effectsPreviews = document.querySelectorAll('.effects__preview');
 
@@ -207,6 +207,7 @@ const onUploadSuccess = () => {
 
 const onUploadError = () => {
   showErrorMessage();
+
   updateSubmitButtonState(false);
 };
 

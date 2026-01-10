@@ -3,13 +3,15 @@ import { loadData } from './fetch.js';
 import { initUploadForm } from './form.js';
 import { initFilters } from './filters.js';
 
-let photos = [];
+let _photos = [];
+
+export const photos = () => _photos.slice();
 
 const onSuccess = (data) => {
-  photos = data.slice();
-  renderThumbnails(photos);
+  _photos = data.slice();
+  renderThumbnails(photos());
   document.querySelector('.img-filters').classList.remove('img-filters--inactive');
-  initFilters(photos);
+  initFilters(photos());
 };
 
 const onFail = (errorMessage) => {
@@ -45,7 +47,7 @@ const onFail = (errorMessage) => {
   document.body.appendChild(messageAlert);
 };
 
+export { onSuccess, onFail };
+
 loadData(onSuccess, onFail);
 initUploadForm();
-
-export { photos };
